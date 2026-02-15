@@ -1,0 +1,90 @@
+<html>
+<head>
+<title>mandelbrot set</title>
+</head>
+<body style="background-color: #111111;color:white;">
+min:<input type="number" id="min" value="-300"></input>
+max:<input type="number" id="max" value="300"></input><br>
+precision:<input type="number" id="precision" value="10"></input>
+critical iter(less than maxiter):<input type="number" id="critical" value="100"></input>
+scale:<input type="number" id="scale" value="30"></input><br>
+paddingx:<input type="number" id="paddingx" value="100"></input>
+paddingy:<input type="number" id="paddingy" value="100"></input><br>
+maxiter:<input type="number" id="maxiter" value="1000"></input>
+maxvalue:<input type="number" id="maxvalue" value="100"></input><br>
+<input type="submit" id= "sabi" value="submit (wait some time)" onclick="draw()"/>
+<p id="text">mandelbrot set</p>
+<br>
+<canvas style="width: 100vw;"></canvas>
+<script>
+cs=document.getElementsByTagName("canvas")[0];
+cts = cs.getContext("2d");
+
+function dot(canvas, x, y)
+{
+  canvas.beginPath();
+  canvas.arc(x,y,1,0,360*Math.PI/180,0);
+  canvas.strokeStyle = "#555555";
+  canvas.stroke();
+}
+
+function iadd(a,b,a1,b1) {//a+bi
+    return [a+a1,b+b1]
+}
+
+function imultiply(a,b,a1,b1) {
+/*  (a+b*i)(a1+b1*i)=
+        a*a1 + a*b1*i + a1*b*i + b*b1*i*i=
+        a*a1 + (a*b1+a1*b)*i - b*b1=
+        (a*a1-b*b1) + (a*b1+a1*b)*i
+*/
+    return [(a*a1-b*b1),(a*b1+a1*b)]
+}
+
+function f(z1,z2,c1,c2){
+    zs = imultiply(z1,z2,z1,z2);
+    zs = iadd(zs[0],zs[1],c1,c2);
+    return zs;
+}
+
+function mandelbrotPlot(c,maxvalue,maxiter) {
+    z = [0,0];
+    n = 0;
+    while(z[0]+z[1]<maxvalue && n<maxiter){
+        z=f(z[0],z[1],c[0],c[1]);
+        n++;
+    }
+    return n;
+}
+
+function mandelbrotDraw(mina,maxa,precision,critical,scale,paddingx,paddingy,maxiter,maxvalue) {
+    for(let i=mina;i<maxa;i+=precision){
+        for(let j=mina;j<maxa;j+=precision){
+            if(mandelbrotPlot([i,j],maxvalue,maxiter)>critical){
+                dot(cts,i*scale+paddingx,j*scale+paddingy);
+            }
+        }
+    }
+}
+
+function draw(){
+    document.getElementById("text").innerHTML = "mandelbrot set plotting...";
+    cts.reset();
+    setTimeout(function(){
+        mandelbrotDraw(parseInt(document.getElementById("min").value,10),
+                       parseInt(document.getElementById("max").value,10),
+                       1/parseInt(document.getElementById("precision").value,10),
+                       parseInt(document.getElementById("critical").value,10),
+                       parseInt(document.getElementById("scale").value,10),
+                       parseInt(document.getElementById("paddingx").value,10),
+                       parseInt(document.getElementById("paddingy").value,10),
+                       parseInt(document.getElementById("maxiter").value,10),
+                       parseInt(document.getElementById("maxvalue").value,10)
+        );
+        document.getElementById("text").innerHTML = "mandelbrot set ploted";
+    }
+    ,50);
+}
+</script>
+</body>
+</html>
